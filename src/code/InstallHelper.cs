@@ -815,8 +815,9 @@ namespace Microsoft.PowerShell.PSResourceGet.Cmdlets
                     return InstallParentAndDependencyPackages(parentAndDeps, currentServer, tempInstallPath, packagesHash, updatedPackagesHash, pkgToInstall);
                 }
                 else {
-                    // If we don't install dependencies, we're only installing the parent pkg so we can short circut and simply install the parent pkg. 
-                    Stream responseStream = currentServer.InstallPackage(pkgToInstall.Name, pkgVersion, true, out ErrorRecord installNameErrRecord);
+                    // If we don't install dependencies, we're only installing the parent pkg so we can short circut and simply install the parent pkg.
+                    // Dispose the stream once done: for local repositories this is a FileStream on the repository's .nupkg and leaving it open locks the file.
+                    using Stream responseStream = currentServer.InstallPackage(pkgToInstall.Name, pkgVersion, true, out ErrorRecord installNameErrRecord);
 
                     if (installNameErrRecord != null)
                     {
@@ -868,7 +869,7 @@ namespace Microsoft.PowerShell.PSResourceGet.Cmdlets
                     verboseMsgs.Enqueue($"Installing package '{depPkgName}' version '{depPkgVersion}'");
                     //Stream responseStream = currentServer.InstallPackage(depPkgName, depPkgVersion, true, out ErrorRecord installNameErrRecord);
                     // add async
-                    Stream responseStream = currentServer.InstallPackageAsync(depPkgName, depPkgVersion, true, errorMsgs, warningMsgs, debugMsgs, verboseMsgs).GetAwaiter().GetResult();
+                    using Stream responseStream = currentServer.InstallPackageAsync(depPkgName, depPkgVersion, true, errorMsgs, warningMsgs, debugMsgs, verboseMsgs).GetAwaiter().GetResult();
 
                     if (errorMsgs.Count > 0)
                     {
@@ -906,7 +907,7 @@ namespace Microsoft.PowerShell.PSResourceGet.Cmdlets
                 {
                     var pkgToInstallName = pkgToBeInstalled.Name;
                     var pkgToInstallVersion = Utils.GetFullVersionString(pkgToBeInstalled.Version.ToString(), pkgToBeInstalled.Prerelease);
-                    Stream responseStream = currentServer.InstallPackage(pkgToInstallName, pkgToInstallVersion, true, out ErrorRecord installNameErrRecord);
+                    using Stream responseStream = currentServer.InstallPackage(pkgToInstallName, pkgToInstallVersion, true, out ErrorRecord installNameErrRecord);
 
                     if (installNameErrRecord != null)
                     {
