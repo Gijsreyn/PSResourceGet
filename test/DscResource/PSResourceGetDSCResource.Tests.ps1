@@ -147,7 +147,7 @@ Describe 'Repository Resource Tests' -Tags 'CI' {
         $outputText = $output | Out-String
         $LASTEXITCODE | Should -Not -Be 0
         $outputText | Should -Match '--input'
-        $outputText | Should -Match 'required'
+        $outputText | Should -Match 'requires'
         $outputText | Should -Not -Match 'Cannot bind argument to parameter'
         $outputText | Should -Not -Match 'Unhandled exception'
     }
